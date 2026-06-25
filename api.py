@@ -1,12 +1,15 @@
 import json
 import pickle
 import random
+from fastapi.responses import HTMLResponse
 import numpy as np
 import nltk
 from nltk.stem import WordNetLemmatizer
 from keras.models import load_model
+from fastapi.responses import HTMLResponse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 
 nltk.download('wordnet', quiet=True)
@@ -78,3 +81,10 @@ def chat(req: ChatRequest):
     intent = intents_list[0]['intent'] if intents_list else "unknown"
     prob = intents_list[0]['probability'] if intents_list else "0"
     return ChatResponse(response=reply, intent=intent, probability=prob)
+
+_FRONTEND = os.path.join(os.path.dirname(_BASE), "chatbot.frontend")
+
+@app.get("/")
+def serve_frontend():
+    with open(os.path.join(_FRONTEND, "index.html"), encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
